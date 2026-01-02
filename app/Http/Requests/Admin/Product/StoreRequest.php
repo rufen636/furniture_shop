@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Storage;
 
 class StoreRequest extends FormRequest
 {
@@ -22,23 +23,58 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string',
-            'description' => 'nullable|string',
-            'material' => 'nullable|string',
-            'color' => 'nullable|string',
-            'style' => 'nullable|string',
-            'short_description' => 'nullable|string',
-            'price' => 'required|double',
-            'compare_price' => 'nullable|double',
-            'cost_price' => 'nullable|double',
-            'quantity' => 'required|integer',
-            'weight' => 'nullable|double',
-            'dimensions' => 'nullable|string',
-            'is_active' => 'nullable|boolean',
-            'is_featured' => 'nullable|boolean',
-            'views' => 'nullable|integer',
-            'category_id' => 'nullable|integer',
-            'brand_id' => 'nullable|integer',
+            'product.name' => 'required|string',
+            'product.description' => 'nullable|string',
+            'product.short_description' => 'nullable|string',
+            'product.price' => 'required|numeric',
+            'product.discount_price' => 'nullable|numeric',
+            'product.quantity' => 'required|integer',
+            'product.weight' => 'nullable|numeric',
+            'product.is_active' => 'nullable|string',
+            'product.views' => 'nullable|integer',
+            'product.category_id' => 'nullable|integer',
+            'product.brand_id' => 'nullable|integer',
+            'product.parameters' => 'nullable|array',
+            'product.parameters.*.color_id' => 'nullable|string',
+            'product.parameters.*.width' => 'nullable|string',
+            'product.parameters.*.height' => 'nullable|string',
+            'product.parameters.*.images' => 'nullable|array',
         ];
+    }
+
+    public function passedValidation()
+    {
+        $paramsWithImages = [];
+
+        foreach ($this->product['parameters'] as $index => $parameter) {
+            $imageArray = [];
+
+            if (isset($parameter['images'])) {
+                foreach ($parameter['images'] as $image) {
+                    $item = Storage::disk('public')->put('/images', $image['file']);
+                    $imageArray[] = $item;
+                }
+            }
+
+            // Добавляем путь к изображениям к конкретному параметру
+            $paramsWithImages[$index] = [
+                ...$parameter,
+                'images_path' => $imageArray
+            ];
+        }
+
+        $productData = $this->validated()['product'];
+
+        if (isset($productData['is_active'])) {
+            $productData['is_active'] = (boolean)$productData['is_active'];
+        }
+
+        return $this->merge([
+            'product' => [
+                ...$productData,
+            ],
+            'params' => $paramsWithImages,
+            'user_id' => auth()->user()->id,
+        ]);
     }
 }

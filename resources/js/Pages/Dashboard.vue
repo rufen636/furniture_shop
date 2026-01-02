@@ -1,0 +1,22 @@
+<template>
+    <div class="py-12">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div
+                class="overflow-hidden bg-white shadow-sm sm:rounded-lg"
+            >
+                <div class="p-6 text-gray-900">
+                    Welcome to Admin dashboard!
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script>
+import AuthenticatedAdminLayout from '@/Layouts/AuthenticatedAdminLayout.vue';
+import { Head } from '@inertiajs/vue3';
+export default {
+    layout: AuthenticatedAdminLayout,
+    name: 'Dashboard',
+}
+</script>
+

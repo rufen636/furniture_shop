@@ -20,8 +20,7 @@ return new class extends Migration
             $table->string('style')->nullable();
             $table->text('short_description')->nullable();
             $table->decimal('price', 10, 2);
-            $table->decimal('compare_price', 10, 2)->nullable();
-            $table->decimal('cost_price', 10, 2)->nullable();
+            $table->decimal('discount_price', 10, 2)->nullable();
             $table->integer('quantity')->default(0);
             $table->decimal('weight')->nullable();
             $table->json('dimensions')->nullable(); // {width, height, depth}

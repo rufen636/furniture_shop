@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasFilter;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    use HasFactory,HasFilter;
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -51,6 +57,10 @@ class Product extends Model
         return $this->belongsToMany(Attribute::class, 'product_attributes')
             ->withPivot('attribute_value_id')
             ->withTimestamps();
+    }
+    public function parameters()
+    {
+        return $this->hasMany(Parameters::class);
     }
 
 }
